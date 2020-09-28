@@ -8,7 +8,7 @@
     <script type="text/javascript">
 
         $(document).ready(() => {
-            var connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:44378/MyHub").build();
+            var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Information).withUrl("https://localhost:44378/MyHub").build();
 
         $("#conStatus").text(connection.connectionState);
 
