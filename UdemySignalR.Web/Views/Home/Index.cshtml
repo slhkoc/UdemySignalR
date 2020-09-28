@@ -8,7 +8,10 @@
     <script type="text/javascript">
 
         $(document).ready(() => {
-            var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Information).withUrl("https://localhost:44378/MyHub").build();
+            var connection = new signalR.HubConnectionBuilder()
+                .configureLogging(signalR.LogLevel.Information)
+                .withAutomaticReconnect([1000, 1000, 1000, 1000]) //Bağlantı Koptuktan Sonra Tekrar Bağlanmayı Denemesi İçin 4 Kere 1000 ms arayla bağlanmayı dener.
+                .withUrl("https://localhost:5001/MyHub").build();
 
         $("#conStatus").text(connection.connectionState);
 
