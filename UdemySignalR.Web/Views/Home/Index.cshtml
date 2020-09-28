@@ -10,54 +10,69 @@
         $(document).ready(() => {
 
             //.configureLogging(signalR.LogLevel.Information) LOGLAMA İÇİN
-            var connection = new signalR.HubConnectionBuilder()               
+            var connection = new signalR.HubConnectionBuilder()
                 .withAutomaticReconnect([1000, 3000, 3000, 2000]) //Bağlantı Koptuktan Sonra Tekrar Bağlanmayı Denemesi İçin 4 Kere 1000 ms arayla bağlanmayı dener.
                 .withUrl("https://localhost:5001/MyHub").build();
 
-        $("#conStatus").text(connection.connectionState);
+            //Functions
+            function statusShow() {
+                $("#conStatus").text(connection.connectionState);
+            }
 
-        connection.start().then(() => {
-            $("#conStatus").text(connection.connectionState);
-            $("#loading").hide();
-        }).catch((err) => { console.log(err) });
+            function start() {
+
+                connection.start().then(() => {
+                    statusShow();
+                    $("#loading").hide();
+                }).catch((err) => {
+                    console.log(err);
+                    setTimeout(()=> start(),2000)
+                });
+
+            }
+
+            statusShow();
+            start();
+
 
 
             connection.onreconnecting(err => {
                 $("#loading").show();
-                $("#conStatus").text(connection.connectionState);
+                statusShow();
                 console.log("onreconnection:" + err)
             });
 
             connection.onreconnected(connectionId => {
                 $("#loading").hide();
-                $("#conStatus").text(connection.connectionState);
+                statusShow();
                 console.log("connectionId:" + connectionId);
             });
 
             connection.onclose(() => {
                 $("#loading").hide();
-                $("#conStatus").text(connection.connectionState);
+                statusShow();
+                start();
 
             })
 
-        //Clicks
-        $("#btnNameSave").click(() => {
+            //Clicks
+            $("#btnNameSave").click(() => {
 
-            //Not:invoke metodu bizim server tarafındaki metotları çağırmamızı sağlıyor
-            connection.invoke("SendName", $("#txtName").val()).catch((err) =>
-                console.log(err))
-        })
+                //Not:invoke metodu bizim server tarafındaki metotları çağırmamızı sağlıyor
+                connection.invoke("SendName", $("#txtName").val()).catch((err) =>
+                    console.log(err))
+            })
 
 
-        ///On Methods
-        //Not: Burada bir metota subscribe olmayı gerçekleştiriyor
+            ///On Methods
+            //Not: Burada bir metota subscribe olmayı gerçekleştiriyor
             connection.on("ReceiveName", (name) => {
                 $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)
-        })
+            })
 
         })
 
-       
+
     </script>
 
 }
@@ -79,6 +94,6 @@
         </div>
     </div>
     <div class="col-md-8 offset-2">
-        <ul class="list-group" id="namesList" ></ul>
+        <ul class="list-group" id="namesList"></ul>
     </div>
 </div>
