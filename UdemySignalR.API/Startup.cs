@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using UdemySignalR.API.Hubs;
+using UdemySignalR.API.Models;
 
 namespace UdemySignalR.API
 {
@@ -26,6 +28,10 @@ namespace UdemySignalR.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer("Data Source=(localdb)\\Projects;Initial Catalog=UdemySignalR;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
