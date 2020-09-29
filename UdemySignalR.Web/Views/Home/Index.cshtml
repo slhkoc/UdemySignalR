@@ -25,12 +25,13 @@
                     statusShow();
                     $("#loading").hide();
 
-                    connection.invoke("GetNames");
+                    //connection.invoke("GetNames");
+                    connection.invoke("GetNamesByGroup");
 
 
                 }).catch((err) => {
                     console.log(err);
-                    setTimeout(()=> start(),2000)
+                    setTimeout(() => start(), 2000)
                 });
 
             }
@@ -80,6 +81,43 @@
                 })
             })
 
+            //Not: Burada bir metota subscribe olmayı gerçekleştiriyor
+            connection.on("ReceiveName", (name) => {
+                $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)
+            })
+
+            connection.on("ReceiveMessageByGroup", (name, teamId) => {
+
+                let listName
+
+                if (teamId == 1) {
+                    listName = "ATeamList";
+                }
+                else {
+                    listName = "BTeamList";
+                }
+
+                $(`#${listName}`).append(`<li class="list-group-item">${name}</li>`)
+            })
+
+            connection.on("ReceiveNamesByGroup", (teams) => {
+                console.log(teams);
+                teams.forEach((team, index) => {
+                    let listName
+
+                    if (team.teamId == 1) {
+                        listName = "ATeamList";
+                    }
+                    else {
+                        listName = "BTeamList";
+                    }
+                    team.users.forEach((user, index2) => {
+                        $(`#${listName}`).append(`<li class="list-group-item">${user.name}</li>`)
+                    })
+
+                })
+            })
+
             //Clicks
             $("#btnNameSave").click(() => {
 
@@ -88,12 +126,30 @@
                     console.log(err))
             })
 
+            $("#btnNameTeam").click(() => {
+                let name = $("#txtName").val();
 
-            ///On Methods
-            //Not: Burada bir metota subscribe olmayı gerçekleştiriyor
-            connection.on("ReceiveName", (name) => {
-                $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)
+                let teamName = $("input[type=radio]:checked").val();
+
+                connection.invoke("SendNameByGroup", name, teamName).catch((err) => {
+                    console.log(err);
+                })
+
             })
+
+            $("input[type=radio]").change(() => {
+                let value = $(`input[type=radio]:checked`).val();
+                if (value == "Team A") {
+                    connection.invoke("AddToGroup", value);
+                    connection.invoke("RemoveToGroup", "Team B");
+                }
+                else {
+                    connection.invoke("AddToGroup", value);
+                    connection.invoke("RemoveToGroup", "Team A");
+                }
+            })
+
+
 
         })
 
@@ -106,7 +162,8 @@
         <input class="form-control" type="text" id="txtName" />
         <hr />
         <button class="btn btn-primary" id="btnNameSave">İsim Kaydet</button>
-        <div class="alert alert-info">
+        <button class="btn btn-warning" id="btnNameTeam">İsim Kaydet(Takım)</button>
+        <div class="alert alert-info mt-2">
             <div class="float-left">
                 Bağlantı Durumu:<strong id="conStatus"></strong>
                 ,Client Sayısı:<strong id="clientCount"></strong>
@@ -122,7 +179,30 @@
 
         </div>
     </div>
+
+</div>
+<div class="row">
     <div class="col-md-8 offset-2">
-        <ul class="list-group" id="namesList"></ul>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="TeamGroup" value="Team A" />
+            <label class="form-check-label">A Takımı</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="TeamGroup" value="Team B" />
+            <label class="form-check-label">B Takımı</label>
+        </div>
+    </div>
+    <div class="col-md-8 offset-2">
+
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group" id="ATeamList"></ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group" id="BTeamList"></ul>
+            </div>
+        </div>
+
+
     </div>
 </div>
