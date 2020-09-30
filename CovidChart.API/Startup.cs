@@ -29,11 +29,22 @@ namespace CovidChart.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<CovidService>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.WithOrigins("https://localhost:44379").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+            });
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer("Data Source=(localdb)\\Projects;Initial Catalog=UdemyCovid19Db;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             });
             services.AddControllers();
+
+
             services.AddSignalR();
         }
 
@@ -48,6 +59,8 @@ namespace CovidChart.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
