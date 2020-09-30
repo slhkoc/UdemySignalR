@@ -25,9 +25,9 @@ namespace CovidChart.API.Controllers
         {
             await _service.SaveCovid(covid);
 
-            IQueryable<Covid> covidList = _service.GetList();
+           // IQueryable<Covid> covidList = _service.GetList();
 
-            return Ok(covidList);
+            return Ok(_service.GetCovidChartList());
         }
 
         [HttpGet]
@@ -39,7 +39,7 @@ namespace CovidChart.API.Controllers
             {
                 foreach(ECity item in Enum.GetValues(typeof(ECity)))
                 {
-                    var newCovid = new Covid { City = item, Count = rnd.Next(100, 1000), CovidDate = DateTime.Now.AddDays(2) };
+                    var newCovid = new Covid { City = item, Count = rnd.Next(100, 1000), CovidDate = DateTime.Now.AddDays(x) };
                     _service.SaveCovid(newCovid).Wait();
                     System.Threading.Thread.Sleep(1000);
                 }
